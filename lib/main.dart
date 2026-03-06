@@ -21,9 +21,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Schedule App',
+      title: 'Psique Lounge',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        // Definição de uma cor dourada elegante
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFD4AF37),
+          primary: const Color(0xFFD4AF37),
+          secondary: const Color(0xFFC5A028),
+        ),
         useMaterial3: true,
       ),
       home: Consumer<AuthViewModel>(
