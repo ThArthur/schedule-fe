@@ -48,7 +48,7 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          widget.room == null ? 'Nova Sala' : 'Editar Sala',
+          widget.room == null ? 'Novo Espaço' : 'Editar Espaço',
           style: const TextStyle(color: Color(0xFF1A1A1A), fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
@@ -81,7 +81,7 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
                         children: [
                           Icon(Icons.add_a_photo_rounded, size: 40, color: goldColor),
                           const SizedBox(height: 8),
-                          Text('Adicionar Foto da Sala', style: TextStyle(color: Colors.grey[600])),
+                          Text('Adicionar Foto do Espaço', style: TextStyle(color: Colors.grey[600])),
                         ],
                       )
                     : Align(
@@ -98,8 +98,8 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
             const SizedBox(height: 24),
             CustomTextField(
               controller: _nameController,
-              label: 'Nome da Sala',
-              prefixIcon: Icons.meeting_room_rounded,
+              label: 'Nome do Espaço',
+              prefixIcon: Icons.business_rounded,
             ),
             const SizedBox(height: 16),
             CustomTextField(
@@ -127,7 +127,7 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: Text(
-                widget.room == null ? 'CRIAR SALA' : 'SALVAR ALTERAÇÕES',
+                widget.room == null ? 'CRIAR ESPAÇO' : 'SALVAR ALTERAÇÕES',
                 style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
               ),
             ),

@@ -27,7 +27,7 @@ class DashboardScreen extends StatelessWidget {
           const SizedBox(height: 15),
           Row(
             children: [
-              Expanded(child: _buildStatCard('Salas Ativas', '5', Icons.meeting_room_rounded, goldColor)),
+              Expanded(child: _buildStatCard('Espaços Ativos', '5', Icons.business_rounded, goldColor)),
               const SizedBox(width: 15),
               Expanded(child: _buildStatCard('Novos Clientes', '8', Icons.person_add_rounded, goldColor)),
             ],
@@ -38,9 +38,9 @@ class DashboardScreen extends StatelessWidget {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
           ),
           const SizedBox(height: 15),
-          _buildActivityItem('João Silva reservou a Sala Master', 'Há 10 minutos'),
+          _buildActivityItem('João Silva reservou o Espaço Master', 'Há 10 minutos'),
           _buildActivityItem('Maria Oliveira cancelou o agendamento', 'Há 25 minutos'),
-          _buildActivityItem('Pagamento confirmado: Consultório Ametista', 'Há 1 hora'),
+          _buildActivityItem('Pagamento confirmado: Espaço Ametista', 'Há 1 hora'),
         ],
       ),
     );

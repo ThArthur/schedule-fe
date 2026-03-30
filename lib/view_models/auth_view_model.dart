@@ -9,27 +9,56 @@ class AuthViewModel extends ChangeNotifier {
   static String get _host {
     if (kIsWeb) return 'localhost';
     try {
-      if (Platform.isAndroid) return '192.168.0.69';
+      if (Platform.isAndroid) return '192.168.15.7'; // IP padrão para emulador Android acessar localhost
     } catch (_) {}
     return 'localhost';
   }
 
+  // Base URL conforme o Postman: {{baseUrl}}/api/auth
   final String _baseUrl = 'http://$_host:8090/api/auth';
+  
   String? _token;
+  String? _role;
+  String? _userName;
   bool _isLoading = false;
 
   String? get token => _token;
+  String? get role => _role;
+  String? get userName => _userName;
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _token != null;
+  bool get isAdmin => _role == 'ROLE_ADMIN';
 
   AuthViewModel() {
-    _loadToken();
+    _loadAuthData();
   }
 
-  Future<void> _loadToken() async {
+  Future<void> _loadAuthData() async {
     final prefs = await SharedPreferences.getInstance();
     _token = prefs.getString('token');
+    _role = prefs.getString('role');
+    _userName = prefs.getString('userName');
     notifyListeners();
+  }
+
+  void _decodeAndStoreToken(String token) {
+    _token = token;
+    try {
+      final parts = token.split('.');
+      if (parts.length == 3) {
+        final payload = json.decode(
+          utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+        );
+        
+        _userName = payload['name'];
+        final authorities = payload['authorities'] as List?;
+        if (authorities != null && authorities.isNotEmpty) {
+          _role = authorities[0]['authority'];
+        }
+      }
+    } catch (e) {
+      debugPrint('Error decoding token: $e');
+    }
   }
 
   Future<bool> login(String email, String password) async {
@@ -48,10 +77,14 @@ class AuthViewModel extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        _token = data['token'];
+        final token = data['token'];
+        
+        _decodeAndStoreToken(token);
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', _token!);
+        await prefs.setString('role', _role ?? '');
+        await prefs.setString('userName', _userName ?? '');
 
         _isLoading = false;
         notifyListeners();
@@ -81,7 +114,19 @@ class AuthViewModel extends ChangeNotifier {
         }),
       );
 
+      // Conforme o Postman, sucesso no register pode ser 201
       if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        
+        // Se o registro já retornar o token (como sugere o script do Postman), já logamos o usuário
+        if (data['token'] != null) {
+          _decodeAndStoreToken(data['token']);
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('token', _token!);
+          await prefs.setString('role', _role ?? '');
+          await prefs.setString('userName', _userName ?? '');
+        }
+
         _isLoading = false;
         notifyListeners();
         return true;
@@ -97,8 +142,12 @@ class AuthViewModel extends ChangeNotifier {
 
   Future<void> logout() async {
     _token = null;
+    _role = null;
+    _userName = null;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
+    await prefs.remove('role');
+    await prefs.remove('userName');
     notifyListeners();
   }
 }

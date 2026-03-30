@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'view_models/auth_view_model.dart';
 import 'views/login_screen.dart';
 import 'views/home_screen.dart';
+import 'views/user_home_screen.dart';
 
 void main() {
   runApp(
@@ -33,7 +34,11 @@ class MyApp extends StatelessWidget {
       ),
       home: Consumer<AuthViewModel>(
         builder: (context, auth, _) {
-          return auth.isAuthenticated ? const HomeScreen() : const LoginScreen();
+          if (!auth.isAuthenticated) {
+            return const LoginScreen();
+          }
+          
+          return auth.isAdmin ? const HomeScreen() : const UserHomeScreen();
         },
       ),
     );

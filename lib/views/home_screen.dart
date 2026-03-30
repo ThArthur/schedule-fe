@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Room> _rooms = [
     Room(
       id: '1',
-      name: 'Sala Master Psique',
+      name: 'Espaço Master Psique',
       description: 'Ambiente climatizado com poltronas ergonômicas.',
       pricePerHour: 120.0,
       imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800',
@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Room(
       id: '3',
       name: 'Espaço Lounge VIP',
-      description: 'Sala ampla para pequenos grupos ou workshops.',
+      description: 'Espaço amplo para pequenos grupos ou workshops.',
       pricePerHour: 200.0,
       imageUrl: 'https://images.unsplash.com/photo-1431540015161-0bf868a2d407?auto=format&fit=crop&q=80&w=800',
     ),
@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
           elevation: 0,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.dashboard_rounded), label: 'Dashboard'),
-            BottomNavigationBarItem(icon: Icon(Icons.meeting_room_rounded), label: 'Salas'),
+            BottomNavigationBarItem(icon: Icon(Icons.business_rounded), label: 'Espaços'),
             BottomNavigationBarItem(icon: Icon(Icons.calendar_month_rounded), label: 'Agenda'),
             BottomNavigationBarItem(icon: Icon(Icons.settings_rounded), label: 'Config'),
           ],
