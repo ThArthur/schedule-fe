@@ -11,12 +11,15 @@ class RoomPricesScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final goldColor = theme.colorScheme.primary;
 
-    // Fake data para preços por período/dia
+    // Como o modelo Room atual não tem preço nem imagem vindo do backend,
+    // usamos valores padrão ou mockados para evitar erros de compilação.
+    const double basePrice = 100.0;
+
     final List<Map<String, dynamic>> priceTiers = [
-      {'label': 'Hora Avulsa', 'price': room.pricePerHour},
-      {'label': 'Turno (4h)', 'price': room.pricePerHour * 3.5},
-      {'label': 'Diária (8h)', 'price': room.pricePerHour * 6.0},
-      {'label': 'Pacote Mensal (10h)', 'price': room.pricePerHour * 8.0},
+      {'label': 'Hora Avulsa', 'price': basePrice},
+      {'label': 'Turno (4h)', 'price': basePrice * 3.5},
+      {'label': 'Diária (8h)', 'price': basePrice * 6.0},
+      {'label': 'Pacote Mensal (10h)', 'price': basePrice * 8.0},
     ];
 
     return Scaffold(
@@ -24,9 +27,9 @@ class RoomPricesScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'Tabela de Preços',
-          style: const TextStyle(color: Color(0xFF1A1A1A), fontWeight: FontWeight.bold),
+          style: TextStyle(color: Color(0xFF1A1A1A), fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1A1A1A)),
@@ -41,14 +44,14 @@ class RoomPricesScreen extends StatelessWidget {
             color: Colors.white,
             child: Row(
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    room.imageUrl,
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(12),
                   ),
+                  child: const Icon(Icons.meeting_room_rounded, size: 40, color: Colors.grey),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -56,12 +59,12 @@ class RoomPricesScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        room.name,
+                        'Sala ${room.number}',
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Gerenciamento de valores e pacotes',
+                        '${room.floor} - Gerenciamento de valores',
                         style: TextStyle(color: Colors.grey[600], fontSize: 13),
                       ),
                     ],

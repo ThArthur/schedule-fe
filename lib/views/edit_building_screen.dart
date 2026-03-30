@@ -1,48 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/room.dart';
-import '../view_models/room_view_model.dart';
+import '../models/building.dart';
+import '../view_models/building_view_model.dart';
 import '../widgets/custom_text_field.dart';
 
-class EditRoomScreen extends StatefulWidget {
-  final Room? room;
-  final int buildingId;
+class EditBuildingScreen extends StatefulWidget {
+  final Building? building;
 
-  const EditRoomScreen({super.key, this.room, required this.buildingId});
+  const EditBuildingScreen({super.key, this.building});
 
   @override
-  State<EditRoomScreen> createState() => _EditRoomScreenState();
+  State<EditBuildingScreen> createState() => _EditBuildingScreenState();
 }
 
-class _EditRoomScreenState extends State<EditRoomScreen> {
+class _EditBuildingScreenState extends State<EditBuildingScreen> {
+  late TextEditingController _nameController;
   late TextEditingController _numberController;
-  late TextEditingController _floorController;
+  late TextEditingController _complementController;
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    _numberController = TextEditingController(text: widget.room?.number ?? '');
-    _floorController = TextEditingController(text: widget.room?.floor ?? '');
+    _nameController = TextEditingController(text: widget.building?.name ?? '');
+    _numberController = TextEditingController(text: widget.building?.number ?? '');
+    _complementController = TextEditingController(text: widget.building?.complement ?? '');
   }
 
   Future<void> _save() async {
-    if (_numberController.text.isEmpty) return;
+    if (_nameController.text.isEmpty) return;
 
     setState(() => _isSaving = true);
 
-    final roomVM = context.read<RoomViewModel>();
-    final roomData = Room(
+    final buildingVM = context.read<BuildingViewModel>();
+    final newBuilding = Building(
+      name: _nameController.text,
       number: _numberController.text,
-      floor: _floorController.text,
-      buildingId: widget.buildingId,
+      complement: _complementController.text,
     );
 
     bool success;
-    if (widget.room == null) {
-      success = await roomVM.createRoom(roomData);
+    if (widget.building == null) {
+      success = await buildingVM.createBuilding(newBuilding);
     } else {
-      success = await roomVM.updateRoom(widget.room!.id!, roomData);
+      success = await buildingVM.updateBuilding(widget.building!.id!, newBuilding);
     }
 
     if (mounted) {
@@ -51,7 +52,7 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao salvar sala')),
+          const SnackBar(content: Text('Erro ao salvar prédio')),
         );
       }
     }
@@ -67,7 +68,7 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          widget.room == null ? 'Nova Sala' : 'Editar Sala',
+          widget.building == null ? 'Novo Prédio' : 'Editar Prédio',
           style: const TextStyle(color: Color(0xFF1A1A1A), fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
@@ -81,15 +82,21 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             CustomTextField(
-              controller: _numberController,
-              label: 'Número da Sala (ex: 101)',
-              prefixIcon: Icons.meeting_room_rounded,
+              controller: _nameController,
+              label: 'Nome do Prédio',
+              prefixIcon: Icons.business_rounded,
             ),
             const SizedBox(height: 16),
             CustomTextField(
-              controller: _floorController,
-              label: 'Andar (ex: 1º Andar)',
-              prefixIcon: Icons.layers_rounded,
+              controller: _numberController,
+              label: 'Número',
+              prefixIcon: Icons.numbers_rounded,
+            ),
+            const SizedBox(height: 16),
+            CustomTextField(
+              controller: _complementController,
+              label: 'Complemento',
+              prefixIcon: Icons.location_on_rounded,
             ),
             const SizedBox(height: 40),
             ElevatedButton(
@@ -103,19 +110,19 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
               child: _isSaving 
                 ? const CircularProgressIndicator(color: Colors.white)
                 : Text(
-                    widget.room == null ? 'CRIAR SALA' : 'SALVAR ALTERAÇÕES',
+                    widget.building == null ? 'CRIAR PRÉDIO' : 'SALVAR ALTERAÇÕES',
                     style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
                   ),
             ),
-            if (widget.room != null) ...[
+            if (widget.building != null) ...[
               const SizedBox(height: 16),
               TextButton.icon(
                 onPressed: () async {
-                  final success = await context.read<RoomViewModel>().deleteRoom(widget.room!.id!);
+                  final success = await context.read<BuildingViewModel>().deleteBuilding(widget.building!.id!);
                   if (success && mounted) Navigator.pop(context);
                 },
                 icon: const Icon(Icons.delete_outline, color: Colors.red),
-                label: const Text('EXCLUIR SALA', style: TextStyle(color: Colors.red)),
+                label: const Text('EXCLUIR PRÉDIO', style: TextStyle(color: Colors.red)),
               ),
             ],
           ],

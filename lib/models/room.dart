@@ -1,17 +1,30 @@
 class Room {
-  final String id;
-  final String name;
-  final String description;
-  final double pricePerHour;
-  final String imageUrl;
-  final bool isAvailable;
+  final int? id;
+  final String floor;
+  final String number;
+  final int buildingId;
 
   Room({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.pricePerHour,
-    required this.imageUrl,
-    this.isAvailable = true,
+    this.id,
+    required this.floor,
+    required this.number,
+    required this.buildingId,
   });
+
+  factory Room.fromJson(Map<String, dynamic> json) {
+    return Room(
+      id: json['id'],
+      floor: json['floor'],
+      number: json['number'],
+      buildingId: json['buildingId'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'floor': floor,
+      'number': number,
+      'buildingId': buildingId,
+    };
+  }
 }
