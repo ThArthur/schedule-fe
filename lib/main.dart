@@ -24,7 +24,6 @@ class MyApp extends StatelessWidget {
       title: 'Psique Lounge',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // Definição de uma cor dourada elegante
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFD4AF37),
           primary: const Color(0xFFD4AF37),
