@@ -3,12 +3,14 @@ class Room {
   final String floor;
   final String number;
   final int buildingId;
+  final String? imageUrl;
 
   Room({
     this.id,
     required this.floor,
     required this.number,
     required this.buildingId,
+    this.imageUrl,
   });
 
   factory Room.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,7 @@ class Room {
       floor: json['floor'],
       number: json['number'],
       buildingId: json['buildingId'],
+      imageUrl: json['imageUrl'],
     );
   }
 

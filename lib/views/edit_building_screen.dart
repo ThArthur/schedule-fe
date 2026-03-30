@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../models/building.dart';
 import '../view_models/building_view_model.dart';
@@ -17,6 +19,7 @@ class _EditBuildingScreenState extends State<EditBuildingScreen> {
   late TextEditingController _nameController;
   late TextEditingController _numberController;
   late TextEditingController _complementController;
+  File? _image;
   bool _isSaving = false;
 
   @override
@@ -27,13 +30,23 @@ class _EditBuildingScreenState extends State<EditBuildingScreen> {
     _complementController = TextEditingController(text: widget.building?.complement ?? '');
   }
 
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
   Future<void> _save() async {
     if (_nameController.text.isEmpty) return;
 
     setState(() => _isSaving = true);
 
     final buildingVM = context.read<BuildingViewModel>();
-    final newBuilding = Building(
+    final buildingData = Building(
       name: _nameController.text,
       number: _numberController.text,
       complement: _complementController.text,
@@ -41,9 +54,9 @@ class _EditBuildingScreenState extends State<EditBuildingScreen> {
 
     bool success;
     if (widget.building == null) {
-      success = await buildingVM.createBuilding(newBuilding);
+      success = await buildingVM.createBuilding(buildingData, _image);
     } else {
-      success = await buildingVM.updateBuilding(widget.building!.id!, newBuilding);
+      success = await buildingVM.updateBuilding(widget.building!.id!, buildingData, _image);
     }
 
     if (mounted) {
@@ -81,6 +94,38 @@ class _EditBuildingScreenState extends State<EditBuildingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Center(
+              child: GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  width: 140,
+                  height: 140,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey[300]!),
+                    image: _image != null
+                        ? DecorationImage(image: FileImage(_image!), fit: BoxFit.cover)
+                        : (widget.building?.imageUrl != null
+                            ? DecorationImage(
+                                image: NetworkImage(widget.building!.imageUrl!),
+                                fit: BoxFit.cover)
+                            : null),
+                  ),
+                  child: _image == null && widget.building?.imageUrl == null
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_a_photo_outlined, size: 40, color: Colors.grey[600]),
+                            const SizedBox(height: 8),
+                            Text('Adicionar Foto', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                          ],
+                        )
+                      : null,
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
             CustomTextField(
               controller: _nameController,
               label: 'Nome do Prédio',
@@ -108,7 +153,7 @@ class _EditBuildingScreenState extends State<EditBuildingScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: _isSaving 
-                ? const CircularProgressIndicator(color: Colors.white)
+                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                 : Text(
                     widget.building == null ? 'CRIAR PRÉDIO' : 'SALVAR ALTERAÇÕES',
                     style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),

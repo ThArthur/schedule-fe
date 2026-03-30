@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import '../models/room.dart';
 
 class RoomViewModel extends ChangeNotifier {
@@ -54,17 +55,27 @@ class RoomViewModel extends ChangeNotifier {
     return _rooms.where((room) => room.buildingId == buildingId).toList();
   }
 
-  Future<bool> createRoom(Room room) async {
+  Future<bool> createRoom(Room room, File? imageFile) async {
     if (_token == null) return false;
     try {
-      final response = await http.post(
-        Uri.parse(_baseUrl),
-        headers: {
-          'Authorization': 'Bearer $_token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(room.toJson()),
-      );
+      var request = http.MultipartRequest('POST', Uri.parse(_baseUrl));
+      request.headers['Authorization'] = 'Bearer $_token';
+
+      request.files.add(http.MultipartFile.fromString(
+        'room',
+        jsonEncode(room.toJson()),
+        contentType: MediaType('application', 'json'),
+      ));
+
+      if (imageFile != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'image',
+          imageFile.path,
+        ));
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         await fetchRooms();
@@ -76,17 +87,27 @@ class RoomViewModel extends ChangeNotifier {
     return false;
   }
 
-  Future<bool> updateRoom(int id, Room room) async {
+  Future<bool> updateRoom(int id, Room room, File? imageFile) async {
     if (_token == null) return false;
     try {
-      final response = await http.put(
-        Uri.parse('$_baseUrl/$id'),
-        headers: {
-          'Authorization': 'Bearer $_token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(room.toJson()),
-      );
+      var request = http.MultipartRequest('PUT', Uri.parse('$_baseUrl/$id'));
+      request.headers['Authorization'] = 'Bearer $_token';
+
+      request.files.add(http.MultipartFile.fromString(
+        'room',
+        jsonEncode(room.toJson()),
+        contentType: MediaType('application', 'json'),
+      ));
+
+      if (imageFile != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'image',
+          imageFile.path,
+        ));
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
         await fetchRooms();
