@@ -146,6 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           final building = buildings[index];
           final roomsCount = context.watch<RoomViewModel>().getRoomsByBuildingId(building.id!).length;
+          final imageUrl = BuildingViewModel.formatImageUrl(building.imageUrl);
 
           return GestureDetector(
             onTap: () {
@@ -166,14 +167,27 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    height: 120,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    child: (imageUrl != null && imageUrl.isNotEmpty)
+                        ? Image.network(
+                      imageUrl,
+                      height: 160,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        height: 160,
+                        width: double.infinity,
+                        color: Colors.grey[100],
+                        child: const Icon(Icons.business_rounded, size: 40, color: Colors.grey),
+                      ),
+                    )
+                        : Container(
+                      height: 160,
+                      width: double.infinity,
                       color: Colors.grey[100],
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      child: const Icon(Icons.business_rounded, size: 40, color: Colors.grey),
                     ),
-                    child: const Icon(Icons.business_rounded, size: 40, color: Colors.grey),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16),
