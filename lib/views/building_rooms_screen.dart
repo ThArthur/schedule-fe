@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/building.dart';
 import '../models/room.dart';
 import '../view_models/room_view_model.dart';
+import '../core/api_config.dart';
 import 'edit_room_screen.dart';
 import 'room_prices_screen.dart';
 
@@ -27,6 +28,8 @@ class BuildingRoomsScreen extends StatelessWidget {
             Text(
               building.name,
               style: const TextStyle(color: Color(0xFF1A1A1A), fontWeight: FontWeight.bold, fontSize: 18),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             Text(
               'Gerenciar Salas',
@@ -113,6 +116,8 @@ class BuildingRoomsScreen extends StatelessWidget {
   }
 
   Widget _buildRoomCard(BuildContext context, Room room, Color goldColor) {
+    final formattedImageUrl = ApiConfig.formatImageUrl(room.imageUrl);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -125,14 +130,27 @@ class BuildingRoomsScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 100,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            child: const Icon(Icons.meeting_room_rounded, size: 40, color: Colors.grey),
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            child: (formattedImageUrl != null && formattedImageUrl.isNotEmpty)
+                ? Image.network(
+                    formattedImageUrl,
+                    height: 120,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 120,
+                      width: double.infinity,
+                      color: Colors.grey[100],
+                      child: const Icon(Icons.broken_image_rounded, size: 40, color: Colors.grey),
+                    ),
+                  )
+                : Container(
+                    height: 120,
+                    width: double.infinity,
+                    color: Colors.grey[100],
+                    child: const Icon(Icons.meeting_room_rounded, size: 40, color: Colors.grey),
+                  ),
           ),
           Padding(
             padding: const EdgeInsets.all(16),
@@ -141,11 +159,17 @@ class BuildingRoomsScreen extends StatelessWidget {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Sala ${room.number}',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    Expanded(
+                      child: Text(
+                        'Sala ${room.number}',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       room.floor,
                       style: TextStyle(color: goldColor, fontWeight: FontWeight.bold),
@@ -175,8 +199,12 @@ class BuildingRoomsScreen extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          // RoomPricesScreen ainda usa o modelo antigo com pricePerHour, 
-                          // podemos ajustar isso depois se o backend tiver preços
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => RoomPricesScreen(room: room),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1A1A1A),

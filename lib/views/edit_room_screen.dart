@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../models/room.dart';
 import '../view_models/room_view_model.dart';
@@ -17,6 +19,7 @@ class EditRoomScreen extends StatefulWidget {
 class _EditRoomScreenState extends State<EditRoomScreen> {
   late TextEditingController _numberController;
   late TextEditingController _floorController;
+  File? _image;
   bool _isSaving = false;
 
   @override
@@ -24,6 +27,16 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
     super.initState();
     _numberController = TextEditingController(text: widget.room?.number ?? '');
     _floorController = TextEditingController(text: widget.room?.floor ?? '');
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
   }
 
   Future<void> _save() async {
@@ -40,9 +53,9 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
 
     bool success;
     if (widget.room == null) {
-      success = await roomVM.createRoom(roomData);
+      success = await roomVM.createRoom(roomData, _image);
     } else {
-      success = await roomVM.updateRoom(widget.room!.id!, roomData);
+      success = await roomVM.updateRoom(widget.room!.id!, roomData, _image);
     }
 
     if (mounted) {
@@ -80,6 +93,38 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Center(
+              child: GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  width: 140,
+                  height: 140,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey[300]!),
+                    image: _image != null
+                        ? DecorationImage(image: FileImage(_image!), fit: BoxFit.cover)
+                        : (widget.room?.imageUrl != null
+                            ? DecorationImage(
+                                image: NetworkImage(widget.room!.imageUrl!),
+                                fit: BoxFit.cover)
+                            : null),
+                  ),
+                  child: _image == null && widget.room?.imageUrl == null
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_a_photo_outlined, size: 40, color: Colors.grey[600]),
+                            const SizedBox(height: 8),
+                            Text('Adicionar Foto', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                          ],
+                        )
+                      : null,
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
             CustomTextField(
               controller: _numberController,
               label: 'Número da Sala (ex: 101)',
@@ -101,7 +146,7 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: _isSaving 
-                ? const CircularProgressIndicator(color: Colors.white)
+                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                 : Text(
                     widget.room == null ? 'CRIAR SALA' : 'SALVAR ALTERAÇÕES',
                     style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),

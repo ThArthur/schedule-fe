@@ -5,6 +5,7 @@ import '../view_models/building_view_model.dart';
 import '../view_models/auth_view_model.dart';
 import '../view_models/room_view_model.dart';
 import '../models/building.dart';
+import '../core/api_config.dart';
 import 'dashboard_screen.dart';
 import 'calendar_screen.dart';
 import 'settings_screen.dart';
@@ -146,6 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           final building = buildings[index];
           final roomsCount = context.watch<RoomViewModel>().getRoomsByBuildingId(building.id!).length;
+          final imageUrl = ApiConfig.formatImageUrl(building.imageUrl);
 
           return GestureDetector(
             onTap: () {
@@ -166,14 +168,27 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    height: 120,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    child: (imageUrl != null && imageUrl.isNotEmpty)
+                        ? Image.network(
+                      imageUrl,
+                      height: 160,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        height: 160,
+                        width: double.infinity,
+                        color: Colors.grey[100],
+                        child: const Icon(Icons.business_rounded, size: 40, color: Colors.grey),
+                      ),
+                    )
+                        : Container(
+                      height: 160,
+                      width: double.infinity,
                       color: Colors.grey[100],
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      child: const Icon(Icons.business_rounded, size: 40, color: Colors.grey),
                     ),
-                    child: const Icon(Icons.business_rounded, size: 40, color: Colors.grey),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -182,13 +197,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               child: Text(
                                 building.name,
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
+                            const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
@@ -212,6 +231,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Text(
                                 '${building.number}, ${building.complement}',
                                 style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],

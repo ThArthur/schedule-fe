@@ -2,18 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import '../models/building.dart';
+import '../core/api_config.dart';
 
 class BuildingViewModel extends ChangeNotifier {
-  static String get _host {
-    if (kIsWeb) return 'localhost';
-    try {
-      if (Platform.isAndroid) return '192.168.15.7';
-    } catch (_) {}
-    return 'localhost';
-  }
-
-  final String _baseUrl = 'http://$_host:8090/api/buildings';
+  final String _baseUrl = '${ApiConfig.baseUrl}/buildings';
   List<Building> _buildings = [];
   bool _isLoading = false;
   String? _token;
@@ -50,17 +44,27 @@ class BuildingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> createBuilding(Building building) async {
+  Future<bool> createBuilding(Building building, File? imageFile) async {
     if (_token == null) return false;
     try {
-      final response = await http.post(
-        Uri.parse(_baseUrl),
-        headers: {
-          'Authorization': 'Bearer $_token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(building.toJson()),
-      );
+      var request = http.MultipartRequest('POST', Uri.parse(_baseUrl));
+      request.headers['Authorization'] = 'Bearer $_token';
+
+      request.files.add(http.MultipartFile.fromString(
+        'building',
+        jsonEncode(building.toJson()),
+        contentType: MediaType('application', 'json'),
+      ));
+
+      if (imageFile != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'image',
+          imageFile.path,
+        ));
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         await fetchBuildings();
@@ -72,17 +76,27 @@ class BuildingViewModel extends ChangeNotifier {
     return false;
   }
 
-  Future<bool> updateBuilding(int id, Building building) async {
+  Future<bool> updateBuilding(int id, Building building, File? imageFile) async {
     if (_token == null) return false;
     try {
-      final response = await http.put(
-        Uri.parse('$_baseUrl/$id'),
-        headers: {
-          'Authorization': 'Bearer $_token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(building.toJson()),
-      );
+      var request = http.MultipartRequest('PUT', Uri.parse('$_baseUrl/$id'));
+      request.headers['Authorization'] = 'Bearer $_token';
+
+      request.files.add(http.MultipartFile.fromString(
+        'building',
+        jsonEncode(building.toJson()),
+        contentType: MediaType('application', 'json'),
+      ));
+
+      if (imageFile != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'image',
+          imageFile.path,
+        ));
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
         await fetchBuildings();

@@ -3,12 +3,14 @@ class Building {
   final String name;
   final String number;
   final String complement;
+  final String? imageUrl;
 
   Building({
     this.id,
     required this.name,
     required this.number,
     required this.complement,
+    this.imageUrl,
   });
 
   factory Building.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,7 @@ class Building {
       name: json['name'],
       number: json['number'],
       complement: json['complement'],
+      imageUrl: json['imageUrl'],
     );
   }
 
