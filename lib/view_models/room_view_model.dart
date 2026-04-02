@@ -4,17 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import '../models/room.dart';
+import '../core/api_config.dart';
 
 class RoomViewModel extends ChangeNotifier {
-  static String get _host {
-    if (kIsWeb) return 'localhost';
-    try {
-      if (Platform.isAndroid) return '192.168.15.7';
-    } catch (_) {}
-    return 'localhost';
-  }
-
-  final String _baseUrl = 'http://$_host:8090/api/rooms';
+  final String _baseUrl = '${ApiConfig.baseUrl}/rooms';
   List<Room> _rooms = [];
   bool _isLoading = false;
   String? _token;

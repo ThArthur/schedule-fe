@@ -5,6 +5,7 @@ import '../view_models/building_view_model.dart';
 import '../view_models/auth_view_model.dart';
 import '../view_models/room_view_model.dart';
 import '../models/building.dart';
+import '../core/api_config.dart';
 import 'dashboard_screen.dart';
 import 'calendar_screen.dart';
 import 'settings_screen.dart';
@@ -146,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           final building = buildings[index];
           final roomsCount = context.watch<RoomViewModel>().getRoomsByBuildingId(building.id!).length;
-          final imageUrl = BuildingViewModel.formatImageUrl(building.imageUrl);
+          final imageUrl = ApiConfig.formatImageUrl(building.imageUrl);
 
           return GestureDetector(
             onTap: () {

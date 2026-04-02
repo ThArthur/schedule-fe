@@ -1,21 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/api_config.dart';
 
 class AuthViewModel extends ChangeNotifier {
-
-  static String get _host {
-    if (kIsWeb) return 'localhost';
-    try {
-      if (Platform.isAndroid) return '192.168.15.7'; // IP padrão para emulador Android acessar localhost
-    } catch (_) {}
-    return 'localhost';
-  }
-
-  // Base URL conforme o Postman: {{baseUrl}}/api/auth
-  final String _baseUrl = 'http://$_host:8090/api/auth';
+  final String _baseUrl = '${ApiConfig.baseUrl}/auth';
   
   String? _token;
   String? _role;
@@ -114,11 +104,9 @@ class AuthViewModel extends ChangeNotifier {
         }),
       );
 
-      // Conforme o Postman, sucesso no register pode ser 201
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
         
-        // Se o registro já retornar o token (como sugere o script do Postman), já logamos o usuário
         if (data['token'] != null) {
           _decodeAndStoreToken(data['token']);
           final prefs = await SharedPreferences.getInstance();

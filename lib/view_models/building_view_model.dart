@@ -4,27 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import '../models/building.dart';
+import '../core/api_config.dart';
 
 class BuildingViewModel extends ChangeNotifier {
-  static String get host {
-    if (kIsWeb) return 'localhost';
-    try {
-      if (Platform.isAndroid) return '192.168.15.7';
-    } catch (_) {}
-    return 'localhost';
-  }
-
-  static String? formatImageUrl(String? url) {
-    if (url == null || url.isEmpty) return null;
-    if (kIsWeb) return url;
-    // Se a URL contém localhost e estamos no Android, substitui pelo IP do host
-    if (Platform.isAndroid && url.contains('localhost')) {
-      return url.replaceAll('localhost', '192.168.15.7');
-    }
-    return url;
-  }
-
-  final String _baseUrl = 'http://$host:8090/api/buildings';
+  final String _baseUrl = '${ApiConfig.baseUrl}/buildings';
   List<Building> _buildings = [];
   bool _isLoading = false;
   String? _token;
