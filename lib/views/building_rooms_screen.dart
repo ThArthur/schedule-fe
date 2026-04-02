@@ -199,8 +199,12 @@ class BuildingRoomsScreen extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          // RoomPricesScreen ainda usa o modelo antigo com pricePerHour, 
-                          // podemos ajustar isso depois se o backend tiver preços
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => RoomPricesScreen(room: room),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1A1A1A),
